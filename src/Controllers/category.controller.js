@@ -44,6 +44,22 @@ const getAllCategories = asyncHandler( async( req, res ) => {
 });
 
 const updateCategory = asyncHandler( async( req, res ) => {})
-const deleteCategory = asyncHandler( async( req, res ) => {})
+const deleteCategory = asyncHandler( async( req, res ) => {
+    const { categoryName } = req.body;
 
-export { createCategory, getAllCategories }
+    if( !categoryName ){
+        throw new ApiError(401, "category name is required!")
+    }
+
+    const isDeleted = await Category.deleteOne({ categoryName })
+
+    if( !isDeleted ){
+        throw new ApiError(501, "Some error occured while deleting the category!")
+    }
+
+    return res.status(200).json(
+        new ApiResponce(201, isDeleted, "Category deteted successfully!")
+    )
+});
+
+export { createCategory, getAllCategories, deleteCategory }

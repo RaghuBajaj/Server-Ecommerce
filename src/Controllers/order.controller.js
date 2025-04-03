@@ -4,7 +4,27 @@ import { ApiResponce } from "../Utils/ApiResponce";
 import { Order } from "../Models/order.model";
 
 const createOrder = asyncHandler( async( req, res ) => {
-    const {} = req.body;
+    const { userId, products, totalPrice } = req.body;
+
+    if ([ userId, products, totalPrice ].some(field => field.trim() == "")) {
+        throw new ApiError(401, "All fields are not provided!")
+    }
+
+    const newOrder = await Order.create({
+        userId,
+        products,
+        totalPrice 
+    })
+
+    const createdOrder = await Order.findById( newOrder._id )
+
+    if( !createdOrder ){
+        throw new ApiError(501, "Some error occured while creating the Order!")
+    }
+
+    return res.status(200).json(
+        new ApiResponce(201, createdOrder, "Order created successfully!")
+    )
 });
 
 const getOrderById = asyncHandler( async( req, res ) => {
@@ -55,6 +75,22 @@ const getAllOrders = asyncHandler( async( req, res ) => {
     )
 });
 
-const cancelOrder = asyncHandler( async( req, res ) => {})
+const cancelOrder = asyncHandler( async( req, res ) => {
+    const { orderId } = req.body;
 
-export { getOrderById, getOrderByUser, getAllOrders }
+    if( !orderId ){
+        throw new ApiError(401, "orderId is required!")
+    }
+
+    const isCancled = await Order.findByIdAndDelete({ orderId })
+
+    if( !isCancled ){
+        throw new ApiError(501, "Some error occured while deleting the order!")
+    }
+
+    return res.status(200).json(
+        new ApiResponce(201, isCancled, "Order deleted successfully!")
+    )
+});
+
+export { createOrder, getOrderById, getOrderByUser, getAllOrders, cancelOrder }

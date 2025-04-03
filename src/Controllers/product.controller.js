@@ -70,6 +70,22 @@ const getProductByCategory = asyncHandler( async( req, res ) => {
 });
 
 const updateProduct = asyncHandler( async( req, res ) => {})
-const deleteProduct = asyncHandler( async( req, res ) => {})
+const deleteProduct = asyncHandler( async( req, res ) => {
+    const { productId } = req.body;
+    
+    if( !productId ){
+        throw new ApiError(401, "ProductId is required!")
+    }
 
-export { createProduct, getProductById, getProductByCategory } 
+    const isDeleted = await Product.findByIdAndDelete({ productId })
+    
+    if( !isDeleted ){
+        throw new ApiError(501, "Some error occured while deleting the product!")
+    }
+    
+    return res.status(200).json(
+        new ApiResponce(201, isDeleted, "Product deleted successfully!")
+    )
+});
+
+export { createProduct, getProductById, getProductByCategory, deleteProduct } 
