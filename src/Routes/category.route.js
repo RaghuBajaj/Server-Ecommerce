@@ -4,7 +4,7 @@ import { createCategory, getAllCategories, deleteCategory } from "../Controllers
 const router = Router()
 
 router.route("/createCategory").post( createCategory )
-router.route("/allCategories").post( getAllCategories )
-router.route("/delete:Category").post( deleteCategory )
+router.route("/allCategories").get( getAllCategories )
+router.route("/delete/Category").delete( deleteCategory )
 
 export default router 

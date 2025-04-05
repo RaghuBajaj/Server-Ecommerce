@@ -1,6 +1,6 @@
 import { asyncHandler } from "../Utils/asyncHandler.js";
 import { ApiError } from "../Utils/ApiError.js";
-import { ApiResponce } from "../Utils/ApiResponce.js";
+import { ApiResponse } from "../Utils/ApiResponse.js";
 import { Product } from "../Models/product.model.js";
 
 const createProduct = asyncHandler( async( req, res ) => {
@@ -29,25 +29,25 @@ const createProduct = asyncHandler( async( req, res ) => {
     }
 
     return res.status(200).json(
-        new ApiResponce(201, createdProduct, "Product created successfully!")
+        new ApiResponse(201, createdProduct, "Product created successfully!")
     )
 });
 
 const getProductById = asyncHandler( async( req, res ) => {
     const { productId } = req.body;
     
-    if( ! productId ){
+    if( !productId ){
         throw new ApiError(401, "ProductId is not provided!")
     }
     
-    const existedProduct = await Product.findOne({ productId })
+    const existedProduct = await Product.findById( productId )
     
     if( !existedProduct ){
         throw new ApiError(402, "Product not found!")
     }
     
     return res.status(200).json(                                                                    
-        new ApiResponce(201, existedProduct, "Product sent successfully!")
+        new ApiResponse(201, existedProduct, "Product sent successfully!")
     )
 });
 
@@ -60,32 +60,54 @@ const getProductByCategory = asyncHandler( async( req, res ) => {
 
     const existedProduct = await Product.find({ category })
 
-    if( !existedProduct ){
+    if( !existedProduct.length ){
         throw new ApiError(402, "No product found!")
     }
 
     return res.status(200).json(
-        new ApiResponce(201, existedProduct, "Products sent successfully!")
+        new ApiResponse(201, existedProduct, "Products sent successfully!")
     )
 });
 
-const updateProduct = asyncHandler( async( req, res ) => {})
+const updateProduct = asyncHandler( async( req, res ) => {
+    const { productId } = req.param; 
+    const { name, price, category } = req.body;
+
+    if( !productId ){
+        throw new ApiError(401, "ProductId is required!")
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+        productId,
+        { $set: { name, price, category }},
+        { new: true }
+    );
+
+    if( !updatedProduct ){
+        throw new ApiError(501, "Error occured while updating the product!")
+    }
+
+    return res.status(200).json(
+        new ApiResponse(201, updatedProduct, "Product updated successfully!")
+    )
+})
+
 const deleteProduct = asyncHandler( async( req, res ) => {
-    const { productId } = req.body;
+    const { productId } = req.params;
     
     if( !productId ){
         throw new ApiError(401, "ProductId is required!")
     }
 
-    const isDeleted = await Product.findByIdAndDelete({ productId })
+    const isDeleted = await Product.findByIdAndDelete( productId )
     
     if( !isDeleted ){
         throw new ApiError(501, "Some error occured while deleting the product!")
     }
     
     return res.status(200).json(
-        new ApiResponce(201, isDeleted, "Product deleted successfully!")
+        new ApiResponse(201, isDeleted, "Product deleted successfully!")
     )
 });
 
-export { createProduct, getProductById, getProductByCategory, deleteProduct } 
+export { createProduct, getProductById, getProductByCategory, updateProduct, deleteProduct } 

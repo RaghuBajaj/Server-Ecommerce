@@ -4,8 +4,8 @@ import { createProduct, getProductById, getProductByCategory, deleteProduct } fr
 const router = Router()
 
 router.route("/createProduct").post( createProduct )
-router.route("/Product:id").post( getProductById )
-router.route("/CategoryProducts:id").post( getProductByCategory )
-router.route("/deleteProducts:id").post( deleteProduct )
+router.route("/:productId").get( getProductById )
+router.route("/categoryProducts").get( getProductByCategory )
+router.route("/delete/:productId").delete( deleteProduct )
 
 export default router
