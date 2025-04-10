@@ -4,7 +4,7 @@ import { registerUser, loginUser, getUserProfile, getAllUsers, updateUserProfile
 const router = Router()
 
 router.route("/registerUser").post( registerUser )
-router.route("/loginUser").post( loginUser )
+router.route("/loginUser").get( loginUser )
 router.route("/profile/:userId").get( getUserProfile )
 router.route("/users").get( getAllUsers )
 router.route("/update/:userId").post( updateUserProfile )
